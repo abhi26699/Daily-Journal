@@ -1,0 +1,38 @@
+<%- include("partials/header"); -%>
+
+
+<%  posts.forEach(function(post){  %>               <!-- running loop to display every record on home screen-->
+
+    <div class="postBody">
+
+      <div class="row">
+
+        <div class="col-sm-4">
+          <h2> <%= post.title %> </h2>
+        </div>
+
+        <div class="col-sm-4">
+          <!-- for deleting selected post when clicking delete button -->
+          <form action="/delete/<%= post.title %>" method="POST">
+            <button type="submit" class="btn btn-danger btn-xs" name="submit">Delete</button>
+          </form>
+        </div>
+
+        <div class="col-sm-4">
+
+        </div>
+      </div>
+
+        <p> <%= post.content.substring(0,100) + " ...." %>
+            <a href="/posts/<%= post.title %>">Read More</a>
+        </p>        <!-- to truncate the content to 100 character -->
+    </div>
+    <br>
+<%  });   %>
+
+
+
+
+
+
+<%- include("partials/footer"); -%>
