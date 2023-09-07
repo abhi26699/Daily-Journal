@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Daily Journel</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/css/style_1.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+
+    <script>
+      $('#mainCarousel').carousel({
+          interval: 2000
+      });
+    </script>
+  </head>
+
+
+  <body>
+
+    <div class="navbar-wrapper">
+      <div class="container">
+        <div class="navbar navbar-inverse navbar-static-top">
+
+            <div class="navbar-header">
+    	    <a class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+    	      <span class="icon-bar"></span>
+    	      <span class="icon-bar"></span>
+    	      <span class="icon-bar"></span>
+    	    </a>
+            <a class="navbar-brand" href="#">Daily Journal</a>
+            </div>
+            <div class="navbar-collapse collapse">
+              <ul class="nav navbar-nav">
+                <li><a href="#">Home</a></li>
+                <li><a href="http://www.bootply.com" target="ext">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+                <li class="dropdown">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
+                  <ul class="dropdown-menu">
+                    <li><a href="#">Action</a></li>
+                    <li><a href="#">Another action</a></li>
+                    <li><a href="#">Something else here</a></li>
+                    <li class="divider"></li>
+                    <li><a href="#">Separated link</a></li>
+                    <li><a href="#">One more separated link</a></li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+
+        </div>
+      </div><!-- /container -->
+    </div><!-- /navbar wrapper -->
+
+
+    <!-- Carousel
+    ================================================== -->
+    <div class="overlay">
+      <marquee><h1>Welcome to Daily Journal</h1></marquee>
+    </div>
+
+    <div id="myCarousel" class="carousel slide">
+      <!-- Indicators -->
+      <ol class="carousel-indicators">
+        <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+        <li data-target="#myCarousel" data-slide-to="1"></li>
+        <li data-target="#myCarousel" data-slide-to="2"></li>
+      </ol>
+      <div class="carousel-inner">
+        <div class="item active">
+          <img src="/image/image_1.jpg" class="img-responsive">
+          <div class="container">
+            <div class="carousel-caption">
+              </div>
+          </div>
+        </div>
+        <div class="item">
+          <img src="/image/image_2.jpg" class="img-responsive">
+          <div class="container">
+            <div class="carousel-caption">
+
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <img src="/image/image_3.webp" class="img-responsive">
+          <div class="container">
+            <div class="carousel-caption">
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <a class="left carousel-control" href="#myCarousel" data-slide="prev">
+        <i class="glyphicon glyphicon-chevron-left"></i>
+      </a>
+      <a class="right carousel-control" href="#myCarousel" data-slide="next">
+        <i class="glyphicon glyphicon-chevron-right"></i>
+      </a>
+    </div>
+    <!-- /.carousel -->
+
+
+
+  </body>
+</html>

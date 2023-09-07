@@ -7,11 +7,12 @@ const ejs = require("ejs");
 const _ = require("lodash");
 const md5 = require("md5");
 
+// for user authentication, install required package [passport, passport-local, passport-local-mongoose, express-session]
 
-const homeStartingContent = "Lacus vel facilisis volutpat est velit egestas dui id ornare. Semper auctor neque vitae tempus quam. Sit amet cursus sit amet dictum sit amet justo. Viverra tellus in hac habitasse. Imperdiet proin fermentum leo vel orci porta. Donec ultrices tincidunt arcu non sodales neque sodales ut. Mattis molestie a iaculis at erat pellentesque adipiscing. Magnis dis parturient montes nascetur ridiculus mus mauris vitae ultricies. Adipiscing elit ut aliquam purus sit amet luctus venenatis lectus. Ultrices vitae auctor eu augue ut lectus arcu bibendum at. Odio euismod lacinia at quis risus sed vulputate odio ut. Cursus mattis molestie a iaculis at erat pellentesque adipiscing.";
-const aboutContent = "Hac habitasse platea dictumst vestibulum rhoncus est pellentesque. Dictumst vestibulum rhoncus est pellentesque elit ullamcorper. Non diam phasellus vestibulum lorem sed. Platea dictumst quisque sagittis purus sit. Egestas sed sed risus pretium quam vulputate dignissim suspendisse. Mauris in aliquam sem fringilla. Semper risus in hendrerit gravida rutrum quisque non tellus orci. Amet massa vitae tortor condimentum lacinia quis vel eros. Enim ut tellus elementum sagittis vitae. Mauris ultrices eros in cursus turpis massa tincidunt dui.";
-const contactContent = "Scelerisque eleifend donec pretium vulputate sapien. Rhoncus urna neque viverra justo nec ultrices. Arcu dui vivamus arcu felis bibendum. Consectetur adipiscing elit duis tristique. Risus viverra adipiscing at in tellus integer feugiat. Sapien nec sagittis aliquam malesuada bibendum arcu vitae. Consequat interdum varius sit amet mattis. Iaculis nunc sed augue lacus. Interdum posuere lorem ipsum dolor sit amet consectetur adipiscing elit. Pulvinar elementum integer enim neque. Ultrices gravida dictum fusce ut placerat orci nulla. Mauris in aliquam sem fringilla ut morbi tincidunt. Tortor posuere ac ut consequat semper viverra nam libero.";
-
+// 1. require all package
+const session = require("express-session");
+const passport = require("passport");
+const passportLocalMongoose = require("passport-local-mongoose");
 
 
 const app = express();
@@ -19,10 +20,21 @@ const posts = [];
 
 
 app.set('view engine', 'ejs');                                  // to use ejs file
-
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static("public"));                              // to use static files
 
+
+// 2. create the session, before making the databse connection and after app.set()
+app.use(session({
+  secret: "Our Little Secret.",
+  resave: false,
+  saveUninitialized: false
+}));
+
+
+// 3. intialize passport
+app.use(passport.initialize());           // set passport to start using authentication
+app.use(passport.session());               // setting passport to use the session
 
 mongoose.connect("mongodb+srv://admin-abhishek:abhishek123@cluster0.ir17ptx.mongodb.net/blogDB");     // database connection
 
@@ -36,6 +48,12 @@ const UserSchema = new mongoose.Schema({                // creating schema to st
   password:String
 });
 
+
+// 4. setting passport-local-passport-local-mongoose
+UserSchema.plugin(passportLocalMongoose);                   // used for hashing password and save the user in mongodb
+
+
+
 /////////////////////// for encryption of password, always create before creating models////////////////////////////
 // const secret = "Thisisourlittlesecret."                           // secret should passed in encryption
 // UserSchema.plugin(encrypt, { secret:secret, encryptedFields:['password']});           // for encrypting password, always create before creating models
@@ -44,52 +62,99 @@ const UserSchema = new mongoose.Schema({                // creating schema to st
 const Post = mongoose.model('Blog', PostSchema);        // creating model from PostSchema
 const User = mongoose.model('User', UserSchema);        // creating model from UserSchema
 
+// 5. user serializer for session
+passport.use(User.createStrategy());
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
-app.get("/",function (req,res) {
 
-  async function findInDB() {                           // to display all record on the home page
-    const Post = mongoose.model('Blog', PostSchema);
-    const result = await Post.find({});                   // find all record from database
-    posts.push(result);                                  // push all records from database into result
-    res.render("home", {posts : result});               // return all the records in posts
-  }
-  findInDB().catch(err => console.log(err));
-
+app.get("/", function(req, res){
+  res.render("index");
 });
 
 
 
+app.get("/home", function(req, res){            // if the user is authenticated then only he can see the home page for all post
+    if(req.isAuthenticated()){
+      async function findInDB() {                           // to display all record on the home page
+        const Post = mongoose.model('Blog', PostSchema);
+        const result = await Post.find({});                   // find all record from database
+        posts.push(result);                                  // push all records from database into result
+        res.render("home", {posts : result});               // return all the records in posts
+      }
+      findInDB().catch(err => console.log(err));
+    }else {
+      res.redirect("/login");
+    }
+});
+
+
 app.post("/signup", function(req,res){      // post method for signup
 
-  const User = mongoose.model('User', UserSchema);
-
-  const newUser = new User({                // creating schema to store user information
-    email:req.body.username,
-    password:md5(req.body.password)
+  User.register({username:req.body.username}, req.body.password, function(err, user){
+    if(err){
+      console.log(err);
+      res.redirect("/signup");
+    }else{
+      passport.authenticate("local")(req, res, function(){
+        res.redirect("/home");
+      });
+    }
   });
-  newUser.save();
-  res.redirect("/");                      // redirect to home page after signup
+  // const User = mongoose.model('User', UserSchema);
+  //
+  // const newUser = new User({                // creating schema to store user information
+  //   email:req.body.username,
+  //   password:md5(req.body.password)
+  // });
+  // newUser.save();
+  // res.redirect("/home");                      // redirect to home page after signup
 });
 
 
 app.post("/login", function(req,res){         // for login of existing user
 
-  const username = req.body.username;
-  const password = md5(req.body.password);        // take the password and convert into hash
+  const user = new User({
+    username: req.body.username,
+    password: md5(req.body.password)
+  });
 
-  async function findInDB(){
-    const result = await User.findOne({email:username});
+  req.login(user, function(err){
+    if(err){
+      console.log(err);
+    }else{
+      passport.authenticate("local")(req, res, function(){
+        res.redirect("/home");
+      });
+    }
+  });
+  // const username = req.body.username;
+  // const password = md5(req.body.password);        // take the password and convert into hash
+  //
+  // async function findInDB(){
+  //   const result = await User.findOne({email:username});
+  //
+  //   if(result){
+  //     if(result.password === password){
+  //       res.redirect("/home");
+  //      }
+  //   }
+  //   else{
+  //     res.redirect("/login");
+  //   }
+  // }
+  // findInDB().catch(err => console.log(err));
+});
 
-    if(result){
-      if(result.password === password){
-        res.redirect("/");
-       }
+
+app.get("/logout", function(req, res){
+  req.logout(function(err){
+    if(err){
+      console.log(err);
+    }else{
+      res.redirect("/");
     }
-    else{
-      res.render("failure");
-    }
-  }
-  findInDB().catch(err => console.log(err));
+  });
 });
 
 
@@ -111,6 +176,10 @@ app.get("/signup", function(req,res){           // to go to signup page
 
 app.get("/login", function(req,res){           // to go to login page
   res.render("login");
+});
+
+app.get("/test", function(req, res){
+  res.render("test");
 });
 
 

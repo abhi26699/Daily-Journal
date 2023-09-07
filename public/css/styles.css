@@ -2,6 +2,10 @@
     padding-top: 70px;
     padding-bottom: 70px;
 }
+
+.container{
+  height: auto;
+}
 .navbar {
     padding-top: 15px;
     padding-bottom: 15px;
@@ -41,3 +45,25 @@
 }
 
 /* SignUp Page */
+
+.logout_button{
+  float: right;
+}
+
+.carousel-inner{
+  height: 470px;
+}
+
+.carousel-content {
+  position: absolute;
+  bottom: 10%;
+  left: 5%;
+  z-index: 20;
+  color: black;
+  text-shadow: 0 1px 2px rgba(0,0,0,.6);
+}
+
+.carousel-caption{
+  z-index: 30;
+  position: absolute;
+}
