@@ -1,30 +1,44 @@
 <%- include("partials/header"); -%>
 
-<div class="wrapper fadeInDown">
-  <h1>Sign up Here..</h1>
-<div id="formContent">
-  <!-- Tabs Titles -->
-
-  <!-- Icon -->
-  <div class="fadeIn first">
-    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQxvk8Gsiker1faT-27y5isoxKLSrE4TZHWQw&usqp=CAU" id="icon" alt="User Icon" />
+  <div class="wrapper fadeInDown">
+    <h1>Sign up Here..</h1>
   </div>
 
-  <!-- Login Form -->
-  <form action="/signup" method="POST">
-    <input type="text" class="fadeIn second" name="username" placeholder="Email">
-    <input type="password" class="fadeIn third" name="password" placeholder="password">
-    <!-- <input type="submit" class="fadeIn fourth" value="submit"> -->
-    <button type="submit" class="btn btn-dark">signup</button>
-  </form>
+  <div class="row">
+    <div class="col-sm-8">
 
-  <!-- Remind Passowrd -->
-  <div id="formFooter">
-    <a class="underlineHover" href="#">Forgot Password?</a>
+        <div id="formContent">
+          <!-- Icon -->
+          <div class="fadeIn first">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQxvk8Gsiker1faT-27y5isoxKLSrE4TZHWQw&usqp=CAU" id="icon" alt="User Icon" />
+          </div>
+
+          <!-- Login Form -->
+          <form action="/signup" method="POST">
+            <input type="text" class="fadeIn second" name="username" placeholder="Email">
+            <input type="password" class="fadeIn third" name="password" placeholder="password">
+            <button type="submit" class="btn btn-dark">signup</button>
+          </form>
+
+          <!-- Remind Passowrd -->
+          <div id="formFooter">
+            <a class="underlineHover" href="#">Forgot Password?</a>
+          </div>
+        </div>
+
+    </div>
+
+    <div class="col-sm-4">
+      <div class="card social-block">
+        <div class="card-body">
+          <a class="btn btn-block btn-social btn-google" href="/auth/google" role="button">
+            <i class="fab fa-google"></i>
+            Sign Up with Google
+          </a>
+        </div>
+      </div>
+    </div>
   </div>
 
-
-</div>
-</div>
 
 <%- include("partials/footer"); -%>

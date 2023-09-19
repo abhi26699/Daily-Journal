@@ -1,5 +1,6 @@
 //jshint esversion:6
 
+require('dotenv').config();
 const mongoose = require('mongoose');
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -13,6 +14,10 @@ const md5 = require("md5");
 const session = require("express-session");
 const passport = require("passport");
 const passportLocalMongoose = require("passport-local-mongoose");
+
+// for google auth Strategy
+const GoogleStrategy = require("passport-google-oauth20").Strategy;
+const findOrCreate = require("mongoose-findorcreate");
 
 
 const app = express();
@@ -45,12 +50,14 @@ const PostSchema = new mongoose.Schema({                // creating schema for b
 
 const UserSchema = new mongoose.Schema({                // creating schema to store user information
   email:String,
-  password:String
+  password:String,
+  googleId:String
 });
 
 
 // 4. setting passport-local-passport-local-mongoose
 UserSchema.plugin(passportLocalMongoose);                   // used for hashing password and save the user in mongodb
+UserSchema.plugin(findOrCreate);
 
 
 
@@ -64,14 +71,59 @@ const User = mongoose.model('User', UserSchema);        // creating model from U
 
 // 5. user serializer for session
 passport.use(User.createStrategy());
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
+//passport.serializeUser(User.serializeUser());
+//passport.deserializeUser(User.deserializeUser());
+
+passport.serializeUser(function(user, cb) {
+  process.nextTick(function() {
+    return cb(null, {
+      id: user.id,
+      username: user.username,
+      picture: user.picture
+    });
+  });
+});
+
+
+passport.deserializeUser(function(user, cb) {
+  process.nextTick(function() {
+    return cb(null, user);
+  });
+});
+
+// for google autherization, should be written after session and serialiser
+passport.use(new GoogleStrategy({
+    clientID: process.env.CLIENT_ID,                                      // taking client id from .env file
+    clientSecret: process.env.CLIENT_SECRET,                                  // taking client secret from .env file
+    callbackURL: "http://localhost:3000/auth/google/dailyjournal",              // taking callbackurl from google cloud console - Authorized Redirect URIs
+    userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo"       // to retreive user account form user info instead of google +
+  },
+  function(accessToken, refreshToken, profile, cb) {
+    console.log(profile);
+    User.findOrCreate({ googleId: profile.id }, function (err, user) {
+      return cb(err, user);
+    });
+  }
+));
+
+
 
 
 app.get("/", function(req, res){
   res.render("index");
 });
 
+
+app.get("/auth/google",                                         // to authenticate with google
+  passport.authenticate("google", { scope: ["profile"] })
+);
+
+app.get("/auth/google/dailyjournal",                                     // when user is authenticated, google redirects to the secrets page
+  passport.authenticate("google", { failureRedirect: "/login" }),
+  function(req, res) {
+    // Successful authentication, redirect to secrets page.
+    res.redirect("/home");
+  });
 
 
 app.get("/home", function(req, res){            // if the user is authenticated then only he can see the home page for all post
